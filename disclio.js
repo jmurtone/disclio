@@ -6,20 +6,30 @@ const fs = require('fs')
 const Discogs = require('disconnect').Client
 
 const DATA_DIR = 'data'
+const COLLECTION_DIR = 'data/collection'
+
 const USER_FILE = 'data/user.json'
-const COLLECTION_FILE = 'data/collection.json'
+const FOLDERS_FILE = 'data/collection/folders.json'
 
 var dis = {}
 var folders = {}
-var user = {}
+var user = undefined
 
 // try to read local storage i.e. disclio json files
 if (!fs.existsSync(DATA_DIR)){
   fs.mkdirSync(DATA_DIR)
 }
+if (!fs.existsSync(COLLECTION_DIR)){
+  fs.mkdirSync(COLLECTION_DIR)
+}
 
 try {
   user = JSON.parse(fs.readFileSync(USER_FILE))
+} catch(err){
+}
+
+try {
+  folders = JSON.parse(fs.readFileSync(FOLDERS_FILE))
 } catch(err){
 }
 
@@ -51,7 +61,7 @@ vorpal
   if(!folders){
     this.log('Please download collection first.')
   } else {
-    folders.map(f => this.log(f.name))
+    folders.map(f => this.log(f.name + ': ' + f.count + ' items.'))
   }
   callback()
 })
@@ -63,10 +73,18 @@ vorpal
     this.log('Please set user first.')
   }
   self = this
-  self.log('Downloading...')
-  download.download(user.username, dis).then(function(data){
-    folders = data.folders
-    self.log('Downloaded collection.')
+  download.download(dis, user.username).then(function(data){
+    folders = data.folders.map(f => ({
+      'id': f.id,
+      'name': f.name,
+      'count': f.count
+    }))
+    fs.writeFileSync(FOLDERS_FILE, JSON.stringify(folders))
+    self.log('Folders: ' + JSON.stringify(folders))
+
+    folders.forEach(f => {
+      download.downloadFolder(dis, user.username, f, COLLECTION_DIR, folders)
+    })
   }
 )
 callback()
@@ -119,10 +137,10 @@ vorpal
 vorpal.log('\n+-------------------------+');
 vorpal.log('|  Disclio - Discogs CLI  |');
 vorpal.log('+--------------------------');
-if(user.username){
+if(user){
   vorpal.exec('initUser')
 } else {
-//vorpal.log('Generate your token in Discogs to request your collection info:  (https://www.discogs.com/settings/developers)')
+  //vorpal.log('Generate your token in Discogs to request your collection info:  (https://www.discogs.com/settings/developers)')
   vorpal.log('Start by typing: user [username] (or help to see other available commands)\n')
 }
 

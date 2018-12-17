@@ -9,7 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "vorpal": "^1.12.0",
-    "disconnect": "^1.2.1"
+    "dateformat": "^3.0.3",
+    "disconnect": "^1.2.1",
+    "vorpal": "^1.12.0"
   }
 }
