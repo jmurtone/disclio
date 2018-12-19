@@ -1,24 +1,71 @@
 {
-  'instance_id':89230797,
-  'rating':0,
-  'basic_information':{
-    'labels':[{'name':'Warner Bros. Records','entity_type':'1','catno':'1-456060','resource_url':'https://api.discogs.com/labels/1000','id':1000,'entity_type_name':'Label'},{'name':'Third Man Records','entity_type':'1','catno':'456060-1','resource_url':'https://api.discogs.com/labels/89238','id':89238,'entity_type_name':'Label'}],
-    'year':2008,
-    'master_url':'https://api.discogs.com/masters/99232',
-    'artists':[
-      {'join':'','name':'The Raconteurs','anv':'','tracks':'','role':'','resource_url':'https://api.discogs.com/artists/475462','id':475462}
+  "instance_id": 89230797,
+  "rating": 0,
+  "basic_information": {
+    "labels": [
+      {
+        "name": "Warner Bros. Records",
+        "entity_type": "1",
+        "catno": "1-456060",
+        "resource_url": "https://api.discogs.com/labels/1000",
+        "id": 1000,
+        "entity_type_name": "Label"
+      },
+      {
+        "name": "Third Man Records",
+        "entity_type": "1",
+        "catno": "456060-1",
+        "resource_url": "https://api.discogs.com/labels/89238",
+        "id": 89238,
+        "entity_type_name": "Label"
+      }
     ],
-    'id':1303295,
-    'thumb':'https://img.discogs.com/zzRcP316I_4ggi5Z2NvJebFTWoo=/fit-in/150x150/filters:strip_icc():format(jpeg):mode_rgb():quality(40)/discogs-images/R-1303295-1483789692-7640.jpeg.jpg',
-    'title':'Consolers Of The Lonely',
-    'formats':[{'descriptions':['LP','Album'],'text':'Tri-Fold Sleeve','name':'Vinyl','qty':'2'}],
-    'cover_image':'https://img.discogs.com/DYv7ENC_Pkv0zgE3NQHc3fRHvAQ=/fit-in/600x602/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-1303295-1483789692-7640.jpeg.jpg',
-    'resource_url':'https://api.discogs.com/releases/1303295',
-    'master_id':99232
+    "year": 2008,
+    "master_url": "https://api.discogs.com/masters/99232",
+    "artists": [
+      {
+        "join": "",
+        "name": "The Raconteurs",
+        "anv": "",
+        "tracks": "",
+        "role": "",
+        "resource_url": "https://api.discogs.com/artists/475462",
+        "id": 475462
+      }
+    ],
+    "id": 1303295,
+    "thumb": "https://img.discogs.com/zzRcP316I_4ggi5Z2NvJebFTWoo=/fit-in/150x150/filters:strip_icc():format(jpeg):mode_rgb():quality(40)/discogs-images/R-1303295-1483789692-7640.jpeg.jpg",
+    "title": "Consolers Of The Lonely",
+    "formats": [
+      {
+        "descriptions": [
+          "LP",
+          "Album"
+        ],
+        "text": "Tri-Fold Sleeve",
+        "name": "Vinyl",
+        "qty": "2"
+      }
+    ],
+    "cover_image": "https://img.discogs.com/DYv7ENC_Pkv0zgE3NQHc3fRHvAQ=/fit-in/600x602/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-1303295-1483789692-7640.jpeg.jpg",
+    "resource_url": "https://api.discogs.com/releases/1303295",
+    "master_id": 99232
   },
-  'folder_id':381388,
-  'date_added':'2014-04-28T12:24:53-07:00',
-  'notes':[
-    {'field_id':1,'value':'Near Mint (NM or M-)'},
-    {'field_id':2,'value':'Near Mint (NM or M-)'},
-    {'field_id':3,'value':'date: 2014-04-07, price: 29.5 USD, store: vinyl'}
+  "folder_id": 381388,
+  "date_added": "2014-04-28T12:24:53-07:00",
+  "foo": "bar", 
+  "notes": [
+    {
+      "field_id": 1,
+      "value": "Near Mint (NM or M-)"
+    },
+    {
+      "field_id": 2,
+      "value": "Near Mint (NM or M-)"
+    },
+    {
+      "field_id": 3,
+      "value": "date: 2014-04-07, price: 29.5 USD, store: vinyl"
+    }
+  ]
+}
