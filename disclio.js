@@ -5,6 +5,7 @@ const download = require('./download.js')
 const foo = require('./foo')
 const fs = require('fs')
 const Discogs = require('disconnect').Client
+const store = require('./store')
 
 const DATA_DIR = 'data'
 const COLLECTION_DIR = 'data/collection'
@@ -13,8 +14,8 @@ const USER_FILE = 'data/user.json'
 const FOLDERS_FILE = 'data/collection/folders.json'
 
 var dis = {}
-var folders = {}
-var user = undefined
+var folders = null
+var user = null
 
 // try to read local storage i.e. disclio json files
 if (!fs.existsSync(DATA_DIR)) {
@@ -68,10 +69,14 @@ vorpal
   })
 
 vorpal
-  .command('foo', 'Print BAR with a message.')
+  .command('foo [message]', 'Set message or echo previously set message')
   .action(function (args, callback) {
     self = this
-    foo.foo('Hello!')
+    if(args.message){
+      foo.setFoo(args.message)
+     } else {
+       foo.printFoo()
+     }
     callback()
   })
 
@@ -104,14 +109,16 @@ vorpal
   .action(function (args, callback) {
 
     if (!args.username) {
-      if (!user.username) {
+      if (!user) {
         this.log('No user set. See \'help user\'')
       } else {
         this.log('User:\t' + user.username + '\nToken:\t' + user.token)
       }
     } else {
 
-      user.username = args.username
+      user = {
+        "username": args.username
+      }
       const self = this // What does this do?
       return this.prompt([{
         type: 'input',

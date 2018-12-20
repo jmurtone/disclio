@@ -1,4 +1,10 @@
-exports.foo = function (message) {
-    self.log('BAR! Got message: ' + message)
+const store = require('./store')
+
+exports.printFoo = function () {
+    self.log('Message in store: ' + store.foofoo.message)
+}
+
+exports.setFoo = function (message) {
+    store.foofoo.message = message
 }
 
