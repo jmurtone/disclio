@@ -6,6 +6,7 @@ const foo = require('./foo')
 const fs = require('fs')
 const Discogs = require('disconnect').Client
 const store = require('./store')
+const stats = require('./stats')
 
 const DATA_DIR = 'data'
 const COLLECTION_DIR = 'data/collection'
@@ -13,9 +14,12 @@ const COLLECTION_DIR = 'data/collection'
 const USER_FILE = 'data/user.json'
 const FOLDERS_FILE = 'data/collection/folders.json'
 
-var dis = {}
-var folders = null
+var dis = null
 var user = null
+var folders = null
+var rootFolder = { name: '/' }
+var parentFolders = []
+var currentFolder = rootFolder
 
 // try to read local storage i.e. disclio json files
 if (!fs.existsSync(DATA_DIR)) {
@@ -34,6 +38,39 @@ try {
   folders = JSON.parse(fs.readFileSync(FOLDERS_FILE))
 } catch (err) {
 }
+
+vorpal
+  .command('pwd', 'Print current folder or artist')
+  .action(function (args, callback) {
+    this.log(currentFolder.name)
+    callback()
+  })
+
+vorpal
+  .command('cd <folder>', 'Go to folder')
+  .action(function (args, callback) {
+    if (args.folder == '..') {
+      if (currentFolder != rootFolder) {
+        currentFolder = parentFolders.pop()
+      }
+    } else {
+      if (!folders) {
+        this.log('Please download collection first.')
+      }
+      folder = folders.find(f => f.name == args.folder)
+      if (!folder) {
+        this.log('Cannot go to \'' + args.folder + '\'')
+      }
+      if (folder && !folder.releases) {
+        folder.releases = JSON.parse(fs.readFileSync(COLLECTION_DIR + '/' + args.folder + '.json'))
+      }
+      if (folder && folder.releases) {
+        parentFolders.push(currentFolder)
+        currentFolder = folder
+      }
+    }
+    callback()
+  })
 
 vorpal
   .command('initUser', 'Confirms whether to continue with stored user')
@@ -63,21 +100,40 @@ vorpal
     if (!folders) {
       this.log('Please download collection first.')
     } else {
-      folders.map(f => this.log(f.name + ': ' + f.count + ' items.'))
+      if(currentFolder == rootFolder){
+        folders.map(f => this.log(f.name + ': ' + f.count + ' items.'))
+      } else {
+        this.log('TODO: List artists...')
+        //artists = currentFolder.releases.filter(r => )
+      }
     }
     callback()
   })
 
 vorpal
-  .command('foo [message]', 'Set message or echo previously set message')
-  .action(function (args, callback) {
-    self = this
-    if(args.message){
-      foo.setFoo(args.message)
-     } else {
-       foo.printFoo()
-     }
-    callback()
+  .command('stats [year]', 'Show statistics for a year')
+  .action(function (args, callback){
+
+      var folder = currentFolder
+
+      if(folder == rootFolder){
+        folder = folders.find(f => f.name == 'All')
+        if(!folder){
+          this.log('Error: No folder \'All\'')
+        } else if(!folder.releases){
+          folder.releases = JSON.parse(fs.readFileSync(COLLECTION_DIR + '/All.json'))
+        }
+      }
+
+      if(!folder || !folder.releases){
+        this.log('Error: No releases in folder ' + folder.name)
+      }
+
+      self = this
+      var year = args.year || new Date().getFullYear()
+      stats.stats(year, folder.releases)
+      callback()
+
   })
 
 vorpal

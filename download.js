@@ -6,6 +6,17 @@ const PAGE_SIZE = 100
 
 const parseNotes = function(title, notes) {
 
+  var debugTitles = [
+    'Mob Rules',
+    'Sacred Heart',
+    'Ride The Lightning'
+  ]
+  var debug = false
+  // debug = debugTitles.includes(title) ? true : false
+  if(debug){
+    self.log('Notes: ' + notes)
+  }
+
   parsed = {}
   notes.forEach(note => {
     // Note: Field ids are subject to change
@@ -24,8 +35,17 @@ const parseNotes = function(title, notes) {
             value = field[1].trim()
             if(key === 'date'){
               try {
+                if(debug){
+                  self.log('Date value: ' + value)
+                }
                 date = parseDate(value.replace('~', ''))
-                parsed[key] = dateFormat(date, 'yyyy-MM-dd')
+                if(debug){
+                  self.log('Parsed date: ' + date)
+                }
+                parsed[key] = dateFormat(date, 'yyyy-mm-dd')
+                if(debug){
+                  self.log('Formatted date: ' + parsed[key])
+                }
               } catch(err){
                 self.log('Invalid date: ' + value.replace('~', '') + ' in title: ' + title)
               }
@@ -83,6 +103,7 @@ exports.downloadFolder = function(dis, user, folder, dir, folders) {
           self.log('Downloaded ' + releases.length + ' items for folder: ' + JSON.stringify(folder.name))
           fs.writeFileSync(dir + '/' + folder.name + '.json', JSON.stringify(releases))
 
+          folder.releases = releases
           folder.fetched = dateFormat(new Date(), 'dd.MM.yyyy HH:mm:ss')
           //self.log('Folders: ' + JSON.stringify(folders))
         }
