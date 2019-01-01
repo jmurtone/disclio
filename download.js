@@ -88,6 +88,7 @@ exports.downloadFolder = function(dis, user, folder, dir, folders) {
     dis.user().collection().getReleases(user, folder.id, {'page': i, 'per_page': PAGE_SIZE}, function(err, data){
         results.push(data.releases.map(r => ({
           'id': r.basic_information.id,
+          'year': r.basic_information.year,
           'master_id': r.basic_information.master_id,
           'instance_id': r.instance_id,
           'artist': {

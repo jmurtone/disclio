@@ -7,6 +7,7 @@ const fs = require('fs')
 const Discogs = require('disconnect').Client
 const store = require('./store')
 const stats = require('./stats')
+const _ = require('lodash')
 
 const DATA_DIR = 'data'
 const COLLECTION_DIR = 'data/collection'
@@ -18,6 +19,7 @@ var dis = null
 var user = null
 var folders = null
 var rootFolder = { name: '/' }
+var folderNames = []
 var parentFolders = []
 var currentFolder = rootFolder
 
@@ -36,6 +38,7 @@ try {
 
 try {
   folders = JSON.parse(fs.readFileSync(FOLDERS_FILE))
+  folderNames = folders.map(f => f.name.toLowerCase())
 } catch (err) {
 }
 
@@ -43,11 +46,13 @@ vorpal
   .command('pwd', 'Print current folder or artist')
   .action(function (args, callback) {
     this.log(currentFolder.name)
+    //this.log(JSON.stringify(currentFolder))
     callback()
   })
 
 vorpal
   .command('cd <folder>', 'Go to folder')
+  .autocomplete(folderNames)
   .action(function (args, callback) {
     if (args.folder == '..') {
       if (currentFolder != rootFolder) {
@@ -57,7 +62,7 @@ vorpal
       if (!folders) {
         this.log('Please download collection first.')
       }
-      folder = folders.find(f => f.name == args.folder)
+      folder = folders.find(f => f.name.toLowerCase() == args.folder.toLowerCase())
       if (!folder) {
         this.log('Cannot go to \'' + args.folder + '\'')
       }
@@ -95,6 +100,7 @@ vorpal
 
 vorpal
   .command('list', 'List items (at root level lists folders)')
+  .alias('ls')
   .action(function (args, callback) {
 
     if (!folders) {
@@ -103,8 +109,21 @@ vorpal
       if(currentFolder == rootFolder){
         folders.map(f => this.log(f.name + ': ' + f.count + ' items.'))
       } else {
-        this.log('TODO: List artists...')
-        //artists = currentFolder.releases.filter(r => )
+
+        // TODO Try to read artists (and their releases) straight from folder structure.
+        // If they don't exist, create structure and assign it to folder.
+      
+        artists = []
+        currentFolder.releases.forEach(r => {
+          artist = _.find(artists, {'artist': r.artist.name})
+          if(!artist){
+            artist = {'artist': r.artist.name, 'releases': []}
+            artists.push(artist)
+          }
+          artist.releases.push(r)
+        })
+        _.sortBy(artists, 'artist').forEach(a => 
+          this.log(a.artist == 'Pixies' ? '\t' + a.artist : a.artist))
       }
     }
     callback()
@@ -150,6 +169,7 @@ vorpal
         'count': f.count
       }))
       fs.writeFileSync(FOLDERS_FILE, JSON.stringify(folders))
+      folderNames = folders.map(f => f.name.toLowerCase())
       self.log('Folders: ' + JSON.stringify(folders))
 
       folders.forEach(f => {

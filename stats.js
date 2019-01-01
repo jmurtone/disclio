@@ -10,6 +10,7 @@ const currencyRates = {
     'FIM': 0.17
 }
 
+// TODO Filter stats by artist, release date, store etc...
 exports.stats = function (year, releases) {
     purchases(year, releases)
     listens(year, releases)
@@ -17,9 +18,9 @@ exports.stats = function (year, releases) {
 
 listens = function (year, releases) {
 
-
     listenedItems = releases
         .filter(r => r.notes.listened && r.notes.listened.includes(year))
+        //.filter(r => r.year == year)
         .map(r => {
             listened = parseListened(r.notes.listened)
             return {
@@ -81,7 +82,6 @@ parseListened = function(item) {
             partial++
         }
     }
-    //console.log(`Whole: ${whole.length} (${JSON.stringify(whole)}), partial: ${partial}`)
     return {
         'partial': partial,
         'whole': whole.length,
@@ -111,7 +111,6 @@ exports.testParseListened = function(item) {
 
     examples.forEach(example => parseListened(example))
 
-
 }
 
 purchases = function (year, releases) {
@@ -121,7 +120,6 @@ purchases = function (year, releases) {
     releases.forEach(item => {
 
         if (item.notes.date && parseDate(item.notes.date).getFullYear() == parseInt(year)) {
-            //self.log(item.artist.name + ': ' + item.title + ', price: ' + item.notes.price)
             purchases.push(item)
             if (item.notes.price) {
                 price = item.notes.price.replace('~', '').split(' ')
@@ -137,4 +135,10 @@ purchases = function (year, releases) {
 
     self.log('Purchased ' + purchases.length + ' items at ' + year)
     self.log('Total sum ' + parseFloat(purchasesAmount).toFixed(2) + ' €')
+
+    // TODO Show each item only if specified
+    purchases = _.sortBy(purchases, function(item){return item.artist.name})
+    purchases.forEach(item =>
+        self.log(item.artist.name + ': ' + item.title + ', price: ' + item.notes.price)
+    )
 }
