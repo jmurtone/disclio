@@ -1,5 +1,6 @@
 
-const vorpal = require('vorpal')();
+const vorpal = require('vorpal')()
+const tty = require('tty')
 const parse = require('./parse.js')
 const download = require('./download.js')
 const foo = require('./foo')
@@ -7,6 +8,7 @@ const fs = require('fs')
 const Discogs = require('disconnect').Client
 const store = require('./store')
 const stats = require('./stats')
+
 const _ = require('lodash')
 
 const DATA_DIR = 'data'
@@ -99,59 +101,82 @@ vorpal
   })
 
 vorpal
-  .command('list', 'List items (at root level lists folders)')
+  .command('list [filter]', 'List items (at root level lists folders). ' + 
+           'Optional filter for refining lists by name (supports wildcards)')
   .alias('ls')
   .action(function (args, callback) {
 
     if (!folders) {
       this.log('Please download collection first.')
     } else {
-      if(currentFolder == rootFolder){
+      if (currentFolder == rootFolder) {
         folders.map(f => this.log(f.name + ': ' + f.count + ' items.'))
       } else {
 
         // TODO Try to read artists (and their releases) straight from folder structure.
         // If they don't exist, create structure and assign it to folder.
-      
+
         artists = []
         currentFolder.releases.forEach(r => {
-          artist = _.find(artists, {'artist': r.artist.name})
-          if(!artist){
-            artist = {'artist': r.artist.name, 'releases': []}
+
+          // TODO Apply filter
+          artist = _.find(artists, { 'artist': r.artist.name })
+          if (!artist) {
+            artist = { 'artist': r.artist.name, 'releases': [] }
             artists.push(artist)
           }
           artist.releases.push(r)
         })
-        _.sortBy(artists, 'artist').forEach(a => 
-          this.log(a.artist == 'Pixies' ? '\t' + a.artist : a.artist))
+        var sortedArtists = _.sortBy(artists, 'artist')
+
+        const MAX_ARTIST_LENGTH = 29
+        var terminalWidth = process.stdout.columns
+
+        var columns = Math.floor(terminalWidth / (MAX_ARTIST_LENGTH + 1))
+        var rowCount = Math.ceil(artists.length / columns)
+
+        for(var i=0; i<rowCount; i++){
+          rowStr = ''
+          for(var j=0; j<columns && i + (j*rowCount) < sortedArtists.length; j++){
+            artist = sortedArtists[i + (j*rowCount)].artist
+            rowStr += artist.substring(0,29).padEnd(30)
+          }
+          this.log(rowStr)
+        }
       }
     }
     callback()
   })
 
+/* TODO Implement resizing of lists
+console.log('screen size has changed!');
+process.stdout.on('resize', () => {
+  console.log(`${process.stdout.columns}x${process.stdout.rows}`);
+});*/
+
 vorpal
   .command('stats [year]', 'Show statistics for a year')
-  .action(function (args, callback){
+  .action(function (args, callback) {
 
-      var folder = currentFolder
+    var folder = currentFolder
 
-      if(folder == rootFolder){
-        folder = folders.find(f => f.name == 'All')
-        if(!folder){
-          this.log('Error: No folder \'All\'')
-        } else if(!folder.releases){
-          folder.releases = JSON.parse(fs.readFileSync(COLLECTION_DIR + '/All.json'))
-        }
+    if (folder == rootFolder) {
+      folder = folders.find(f => f.name == 'All')
+      if (!folder) {
+        this.log('Error: No folder \'All\'')
+      } else if (!folder.releases) {
+        folder.releases = JSON.parse(fs.readFileSync(COLLECTION_DIR + '/All.json'))
       }
+    }
 
-      if(!folder || !folder.releases){
-        this.log('Error: No releases in folder ' + folder.name)
-      }
+    if (!folder || !folder.releases) {
+      this.log('Error: No releases in folder ' + folder.name)
+    }
 
-      self = this
-      var year = args.year || new Date().getFullYear()
-      stats.stats(year, folder.releases)
-      callback()
+    self = this
+    var year = args.year || new Date().getFullYear()
+    stats.stats(year, folder.releases)
+    callback()
 
   })
 
