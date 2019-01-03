@@ -102,7 +102,7 @@ vorpal
 
 vorpal
   .command('list [filter]', 'List items (at root level lists folders). ' + 
-           'Optional filter for refining lists by name (supports wildcards)')
+           'Optional filter for refining lists by given filter (supports wildcards)')
   .alias('ls')
   .action(function (args, callback) {
 
@@ -119,7 +119,12 @@ vorpal
         artists = []
         currentFolder.releases.forEach(r => {
 
-          // TODO Apply filter
+          if(args.filter){
+            if(!matchRule(r.artist.name.toLowerCase(), args.filter.toLowerCase())){
+              return
+            }
+          }
+
           artist = _.find(artists, { 'artist': r.artist.name })
           if (!artist) {
             artist = { 'artist': r.artist.name, 'releases': [] }
@@ -127,26 +132,45 @@ vorpal
           }
           artist.releases.push(r)
         })
+
+        var filterStr = args.filter ? ` (filter: ${args.filter.toLowerCase()})` : ''
+        this.log(`${artists.length} artists in folder ${currentFolder.name}${filterStr}.`)
+
+        const LIST_IN_COLUMNS_THRESHOLD = 15
         var sortedArtists = _.sortBy(artists, 'artist')
-
-        const MAX_ARTIST_LENGTH = 29
-        var terminalWidth = process.stdout.columns
-
-        var columns = Math.floor(terminalWidth / (MAX_ARTIST_LENGTH + 1))
-        var rowCount = Math.ceil(artists.length / columns)
-
-        for(var i=0; i<rowCount; i++){
-          rowStr = ''
-          for(var j=0; j<columns && i + (j*rowCount) < sortedArtists.length; j++){
-            artist = sortedArtists[i + (j*rowCount)].artist
-            rowStr += artist.substring(0,29).padEnd(30)
-          }
-          this.log(rowStr)
+        if(sortedArtists.length > LIST_IN_COLUMNS_THRESHOLD){
+            self = this
+            printColumns(sortedArtists)
+        } else {
+          _.forEach(sortedArtists, a => this.log(a.artist))
         }
+
       }
     }
     callback()
   })
+
+function printColumns(sortedArtists) {
+
+  const MAX_ARTIST_LENGTH = 29
+  var terminalWidth = process.stdout.columns
+
+  var columns = Math.floor(terminalWidth / (MAX_ARTIST_LENGTH + 1))
+  var rowCount = Math.ceil(artists.length / columns)
+
+  for(var i=0; i<rowCount; i++){
+    rowStr = ''
+    for(var j=0; j<columns && i + (j*rowCount) < sortedArtists.length; j++){
+      artist = sortedArtists[i + (j*rowCount)].artist
+      rowStr += artist.substring(0,29).padEnd(30)
+    }
+    self.log(rowStr)
+  }
+}
+
+function matchRule(str, rule) {
+  return new RegExp("^" + rule.split("*").join(".*") + "$").test(str);
+}
 
 /* TODO Implement resizing of lists
 console.log('screen size has changed!');
