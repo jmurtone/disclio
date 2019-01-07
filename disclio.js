@@ -8,6 +8,7 @@ const fs = require('fs')
 const Discogs = require('disconnect').Client
 const store = require('./store')
 const stats = require('./stats')
+const printer = require('./print')
 
 const _ = require('lodash')
 
@@ -134,6 +135,7 @@ vorpal
 vorpal
   .command('list [filter]', 'List items (at root level lists folders). ' + 
            'Optional filter for refining lists by given filter (supports wildcards)')
+  .option('-l, --long', 'Prints long version of an item')
   .alias('ls')
   .action(function (args, callback) {
 
@@ -145,7 +147,7 @@ vorpal
       if(currentArtist){
         this.log(`${currentArtist.releases.length} items by ${currentArtist.artist} ` + 
                  `in folder '${currentFolder.name}'`)
-        currentArtist.releases.map(r => this.log(r.title))
+        printer.printItems(args.options.long, currentArtist.releases)
       
       } else if (currentFolder == rootFolder) {
         folders.map(f => this.log(f.name + ': ' + f.count + ' items.'))
@@ -317,9 +319,9 @@ vorpal
   .delimiter('disclio$')
   .show();
 
-vorpal.log('\n+-------------------------+');
+vorpal.log('\n┌-------------------------┐');
 vorpal.log('|  Disclio - Discogs CLI  |');
-vorpal.log('+--------------------------');
+vorpal.log('└-------------------------┘');
 if (user) {
   vorpal.exec('initUser')
 } else {
