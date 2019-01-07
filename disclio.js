@@ -1,6 +1,5 @@
 
 const vorpal = require('vorpal')()
-const tty = require('tty')
 const parse = require('./parse.js')
 const download = require('./download.js')
 const foo = require('./foo')
@@ -52,16 +51,22 @@ try {
 }
 
 vorpal
+  .command('asd')
+  .action(function (args, callback) {
+    this.log('Test')
+  })
+
+vorpal
   .command('pwd', 'Print current folder or artist')
   .action(function (args, callback) {
-    this.log(currentFolder.name + (currentArtist? ' - ' + currentArtist.artist : ''))
+    this.log(currentFolder.name + (currentArtist ? ' - ' + currentArtist.artist : ''))
     callback()
   })
 
 vorpal
   .command('cd <name...>', 'Go to folder or artist')
   .autocomplete({
-    data: function() {
+    data: function () {
       return childrenNames
     }
   })
@@ -72,7 +77,7 @@ vorpal
     if (name == '..') {
       if (currentFolder != rootFolder) {
         currentFolder = parentFolders.pop()
-        if(currentArtist){
+        if (currentArtist) {
           childrenNames = currentFolder.artists.map(a => a.artist.toLowerCase())
           currentArtist = null
         } else {
@@ -87,7 +92,7 @@ vorpal
       if (!folder) {
         artist = currentFolder.artists.find(
           a => a.artist.toLowerCase() == name.toLowerCase())
-        if(artist){
+        if (artist) {
           currentArtist = artist
           parentFolders.push(currentFolder)
           childrenNames = artist.releases.map(r => r.title.toLowerCase())
@@ -102,7 +107,7 @@ vorpal
         parentFolders.push(currentFolder)
         currentFolder = folder
 
-        if(!folder.artists){
+        if (!folder.artists) {
           assignArtistsToFolder(folder)
         }
         childrenNames = folder.artists.map(a => a.artist.toLowerCase())
@@ -133,8 +138,8 @@ vorpal
   })
 
 vorpal
-  .command('list [filter]', 'List items (at root level lists folders). ' + 
-           'Optional filter for refining lists by given filter (supports wildcards)')
+  .command('list [filter]', 'List items (at root level lists folders). ' +
+    'Optional filter for refining lists by given filter (supports wildcards)')
   .option('-l, --long', 'Prints long version of an item')
   .alias('ls')
   .action(function (args, callback) {
@@ -144,22 +149,22 @@ vorpal
       this.log('Please download collection first.')
     } else {
 
-      if(currentArtist){
-        this.log(`${currentArtist.releases.length} items by ${currentArtist.artist} ` + 
-                 `in folder '${currentFolder.name}'`)
+      if (currentArtist) {
+        this.log(`${currentArtist.releases.length} items by ${currentArtist.artist} ` +
+          `in folder '${currentFolder.name}'`)
         printer.printItems(args.options.long, currentArtist.releases)
-      
+
       } else if (currentFolder == rootFolder) {
         folders.map(f => this.log(f.name + ': ' + f.count + ' items.'))
       } else {
 
-        if(!currentFolder.artists){
+        if (!currentFolder.artists) {
           assignArtistsToFolder(currentFolder)
         }
         artists = []
-        if(args.filter){
+        if (args.filter) {
           artists = _.filter(currentFolder.artists,
-              a => matchRule(a.artist.toLowerCase(), args.filter.toLowerCase()))
+            a => matchRule(a.artist.toLowerCase(), args.filter.toLowerCase()))
         } else {
           artists = currentFolder.artists
         }
@@ -169,8 +174,8 @@ vorpal
 
         const LIST_IN_COLUMNS_THRESHOLD = 15
         var sortedArtists = _.sortBy(artists, 'artist')
-        if(sortedArtists.length > LIST_IN_COLUMNS_THRESHOLD){
-            printColumns(sortedArtists)
+        if (sortedArtists.length > LIST_IN_COLUMNS_THRESHOLD) {
+          printColumns(sortedArtists)
         } else {
           _.forEach(sortedArtists, a => this.log(a.artist))
         }
@@ -180,7 +185,7 @@ vorpal
     callback()
   })
 
-function assignArtistsToFolder(folder){
+function assignArtistsToFolder(folder) {
 
   artists = []
   folder.releases.forEach(r => {
@@ -202,11 +207,11 @@ function printColumns(sortedArtists) {
   var columns = Math.floor(terminalWidth / (MAX_ARTIST_LENGTH + 1))
   var rowCount = Math.ceil(artists.length / columns)
 
-  for(var i=0; i<rowCount; i++){
+  for (var i = 0; i < rowCount; i++) {
     rowStr = ''
-    for(var j=0; j<columns && i + (j*rowCount) < sortedArtists.length; j++){
-      artist = sortedArtists[i + (j*rowCount)].artist
-      rowStr += artist.substring(0,29).padEnd(30)
+    for (var j = 0; j < columns && i + (j * rowCount) < sortedArtists.length; j++) {
+      artist = sortedArtists[i + (j * rowCount)].artist
+      rowStr += artist.substring(0, 29).padEnd(30)
     }
     self.log(rowStr)
   }
@@ -322,6 +327,9 @@ vorpal
 vorpal.log('\n┌-------------------------┐');
 vorpal.log('|  Disclio - Discogs CLI  |');
 vorpal.log('└-------------------------┘');
+
+
+
 if (user) {
   vorpal.exec('initUser')
 } else {
