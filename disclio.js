@@ -21,9 +21,14 @@ var dis = null
 var user = null
 var folders = null
 var rootFolder = { name: '/' }
-var folderNames = []
+var childrenNames = []
 var parentFolders = []
 var currentFolder = rootFolder
+var currentArtist = null
+
+function getChildrenNames() {
+  return childrenNames
+}
 
 // try to read local storage i.e. disclio json files
 if (!fs.existsSync(DATA_DIR)) {
@@ -40,40 +45,66 @@ try {
 
 try {
   folders = JSON.parse(fs.readFileSync(FOLDERS_FILE))
-  folderNames = folders.map(f => f.name.toLowerCase())
+  // We're at root and folders are its children
+  childrenNames = folders.map(f => f.name.toLowerCase())
 } catch (err) {
 }
 
 vorpal
   .command('pwd', 'Print current folder or artist')
   .action(function (args, callback) {
-    this.log(currentFolder.name)
-    //this.log(JSON.stringify(currentFolder))
+    this.log(currentFolder.name + (currentArtist? ' - ' + currentArtist.artist : ''))
     callback()
   })
 
 vorpal
-  .command('cd <folder>', 'Go to folder')
-  .autocomplete(folderNames)
+  .command('cd <name...>', 'Go to folder or artist')
+  .autocomplete({
+    data: function() {
+      return childrenNames
+    }
+  })
   .action(function (args, callback) {
-    if (args.folder == '..') {
+
+    self = this
+    var name = args.name.join(' ')
+    if (name == '..') {
       if (currentFolder != rootFolder) {
         currentFolder = parentFolders.pop()
+        if(currentArtist){
+          childrenNames = currentFolder.artists.map(a => a.artist.toLowerCase())
+          currentArtist = null
+        } else {
+          childrenNames = folders.map(f => f.name.toLowerCase())
+        }
       }
     } else {
       if (!folders) {
         this.log('Please download collection first.')
       }
-      folder = folders.find(f => f.name.toLowerCase() == args.folder.toLowerCase())
+      folder = folders.find(f => f.name.toLowerCase() == name.toLowerCase())
       if (!folder) {
-        this.log('Cannot go to \'' + args.folder + '\'')
+        artist = currentFolder.artists.find(
+          a => a.artist.toLowerCase() == name.toLowerCase())
+        if(artist){
+          currentArtist = artist
+          parentFolders.push(currentFolder)
+          childrenNames = artist.releases.map(r => r.title.toLowerCase())
+        }
+
       }
       if (folder && !folder.releases) {
-        folder.releases = JSON.parse(fs.readFileSync(COLLECTION_DIR + '/' + args.folder + '.json'))
+        folder.releases = JSON.parse(fs.readFileSync(COLLECTION_DIR + '/' + name + '.json'))
       }
       if (folder && folder.releases) {
+
         parentFolders.push(currentFolder)
         currentFolder = folder
+
+        if(!folder.artists){
+          assignArtistsToFolder(folder)
+        }
+        childrenNames = folder.artists.map(a => a.artist.toLowerCase())
       }
     }
     callback()
@@ -106,32 +137,30 @@ vorpal
   .alias('ls')
   .action(function (args, callback) {
 
+    self = this
     if (!folders) {
       this.log('Please download collection first.')
     } else {
-      if (currentFolder == rootFolder) {
+
+      if(currentArtist){
+        this.log(`${currentArtist.releases.length} items by ${currentArtist.artist} ` + 
+                 `in folder '${currentFolder.name}'`)
+        currentArtist.releases.map(r => this.log(r.title))
+      
+      } else if (currentFolder == rootFolder) {
         folders.map(f => this.log(f.name + ': ' + f.count + ' items.'))
       } else {
 
-        // TODO Try to read artists (and their releases) straight from folder structure.
-        // If they don't exist, create structure and assign it to folder.
-
+        if(!currentFolder.artists){
+          assignArtistsToFolder(currentFolder)
+        }
         artists = []
-        currentFolder.releases.forEach(r => {
-
-          if(args.filter){
-            if(!matchRule(r.artist.name.toLowerCase(), args.filter.toLowerCase())){
-              return
-            }
-          }
-
-          artist = _.find(artists, { 'artist': r.artist.name })
-          if (!artist) {
-            artist = { 'artist': r.artist.name, 'releases': [] }
-            artists.push(artist)
-          }
-          artist.releases.push(r)
-        })
+        if(args.filter){
+          artists = _.filter(currentFolder.artists,
+              a => matchRule(a.artist.toLowerCase(), args.filter.toLowerCase()))
+        } else {
+          artists = currentFolder.artists
+        }
 
         var filterStr = args.filter ? ` (filter: ${args.filter.toLowerCase()})` : ''
         this.log(`${artists.length} artists in folder ${currentFolder.name}${filterStr}.`)
@@ -139,7 +168,6 @@ vorpal
         const LIST_IN_COLUMNS_THRESHOLD = 15
         var sortedArtists = _.sortBy(artists, 'artist')
         if(sortedArtists.length > LIST_IN_COLUMNS_THRESHOLD){
-            self = this
             printColumns(sortedArtists)
         } else {
           _.forEach(sortedArtists, a => this.log(a.artist))
@@ -149,6 +177,20 @@ vorpal
     }
     callback()
   })
+
+function assignArtistsToFolder(folder){
+
+  artists = []
+  folder.releases.forEach(r => {
+    artist = _.find(artists, { 'artist': r.artist.name })
+    if (!artist) {
+      artist = { 'artist': r.artist.name, 'releases': [] }
+      artists.push(artist)
+    }
+    artist.releases.push(r)
+  })
+  folder.artists = artists
+}
 
 function printColumns(sortedArtists) {
 
@@ -218,7 +260,7 @@ vorpal
         'count': f.count
       }))
       fs.writeFileSync(FOLDERS_FILE, JSON.stringify(folders))
-      folderNames = folders.map(f => f.name.toLowerCase())
+      childrenNames = folders.map(f => f.name.toLowerCase())
       self.log('Folders: ' + JSON.stringify(folders))
 
       folders.forEach(f => {
