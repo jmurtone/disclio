@@ -1,73 +1,10 @@
 const fs = require('fs')
 const dateFormat = require('dateformat')
 const parseDate = require('parse-date')
+const parse = require('./parse')
+
 
 const PAGE_SIZE = 100
-
-const parseNotes = function(title, notes) {
-
-  var debugTitles = [
-    'Mob Rules',
-    'Sacred Heart',
-    'Ride The Lightning'
-  ]
-  var debug = false
-  // debug = debugTitles.includes(title) ? true : false
-  if(debug){
-    self.log('Notes: ' + notes)
-  }
-
-  parsed = {}
-  notes.forEach(note => {
-    // Note: Field ids are subject to change
-    switch(note.field_id){
-      case 1: 
-        parsed.mediaCondition = note.value
-        return
-      case 2:
-        parsed.sleeveCondition = note.value
-        return
-      case 3:
-        try {
-          note.value.split(',').forEach(token => {
-            field = token.split(':')
-            key = field[0].trim()
-            value = field[1].trim()
-            if(key === 'date'){
-              try {
-                if(debug){
-                  self.log('Date value: ' + value)
-                }
-                date = parseDate(value.replace('~', ''))
-                if(debug){
-                  self.log('Parsed date: ' + date)
-                }
-                parsed[key] = dateFormat(date, 'yyyy-mm-dd')
-                if(debug){
-                  self.log('Formatted date: ' + parsed[key])
-                }
-              } catch(err){
-                self.log('Invalid date: ' + value.replace('~', '') + ' in title: ' + title)
-              }
-            } else {
-              parsed[key] = value 
-            }
-          })
-        } catch(err) {
-            self.log("Invalid notes field in title " + title + ": " + note.value)
-        }
-        return
-      case 5:
-        // TODO Normalize to ISO date
-        parsed.listened = note.value
-        return
-      default:
-        return
-    }
-  })
-  return parsed
-
-}
 
 exports.download = function(dis, user) {
 
@@ -83,6 +20,9 @@ exports.downloadFolder = function(dis, user, folder, dir, folders) {
   //self.log(folder.count + ' releases in folder => ' + pageCount + ' pages, each of ' + PAGE_SIZE + ' items.')
 
   var results = []
+  if(folder.count == 0){
+    folder.fetched = true
+  }
   for(var i = 1; i <= pageCount; i++){
     //self.log('Downloading page ' + i)
     dis.user().collection().getReleases(user, folder.id, {'page': i, 'per_page': PAGE_SIZE}, function(err, data){
@@ -96,7 +36,7 @@ exports.downloadFolder = function(dis, user, folder, dir, folders) {
             'name': r.basic_information.artists[0].name
           },
           'title': r.basic_information.title,
-          'notes': r.notes ? parseNotes(r.basic_information.title, r.notes) : null
+          'notes': r.notes ? parse.parseNotes(r.basic_information.title, r.notes) : null
         })))
         if(results.length == pageCount){
           // flatten releases

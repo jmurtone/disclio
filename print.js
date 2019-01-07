@@ -11,13 +11,13 @@ const SUGGESTED_PRICE = 'Sugg.'
 const STORE = 'Store'
 const OTHER = 'Other'
 const columns = [
-    { name: TITLE, width: 30 },
-    { name: LISTENED, width: 16 },
-    { name: PURCHASED, width: 10 },
-    { name: PRICE, width: 7 },
-    { name: SUGGESTED_PRICE, width: 5 },
-    { name: STORE, width: 10 },
-    { name: OTHER, width: 20 }
+    { name: TITLE, width: 30, field: 'title'},
+    { name: LISTENED, width: 16, notesField: 'listened'},
+    { name: PURCHASED, width: 10, notesField: 'date'},
+    { name: PRICE, width: 7, notesField: 'price'},
+    { name: SUGGESTED_PRICE, width: 5, notesField: 'suggestedPrice'},
+    { name: STORE, width: 10, notesField: 'store'},
+    { name: OTHER, width: 20, notesField: ['notes']}
 ]
 
 function getRequiredConsoleWidth() {
@@ -47,50 +47,68 @@ function printItems(items) {
 function printItemsDetailed(items) {
     if(requiredConsoleWidth > process.stdout.columns){
         self.log(`Window width must be at least ${requiredConsoleWidth} to print detailed info.`)
+        items.map(i => self.log(i.title))
     } else {
-        self.log('TODO Detailed list of items')
-        printHeadingRow()
-        items.map(i => printItem(i))
+        printHeadings()
+        items.map((item, i)  => {
+            printItem(item)
+            if(i< items.length - 1){
+                self.log(buildHorizontalBorder('├','┼','┤','─'))
+            }
+        })
+        self.log(buildHorizontalBorder('└','┴','┘','─'))
     }
 }
 
 
 // 2018-11-01 (+1)
 
-function printHeadingRow() {
-    // TODO We can print detailed information only if width of the console
-    // exceeds certain level.
-    // TODO Add fields:
-    // Title, Listened (newest + n), Purchased, Price, Suggested price, Store, Other
-    var headingTop = '┌'
-    columns.map((c, i) => {
-        headingTop += ''.padEnd(c.width + 2, '─')
-        if(i < columns.length - 1){
-            headingTop += '┬'
-        } else {
-            headingTop += '┐'
-        }
-    })
-    var fieldsRow = '|'
-    columns.map((c, i) => {
-        fieldsRow += (' ' + c.name + ' ').padEnd(c.width + 2) + '|'
-    })
-    var headingBottom = '├'
-    columns.map((c, i) => {
-        headingBottom += ''.padEnd(c.width + 2, '─')
-        if(i < columns.length - 1){
-            headingBottom += '┼'
-        } else {
-            headingBottom += '┤'
-        }
-    })
+function printHeadings() {
 
     //self.log('Row length: ' + headingTop.length)
-    self.log(headingTop)
+    //self.log(buildHorizontalBorder('┌','┬','┐','─'))
+    self.log(buildHorizontalBorder('╔','╦','╗','═'))
+    var fieldsRow = '║'
+    columns.map((c, i) => {
+        fieldsRow += (' ' + c.name + ' ').padEnd(c.width + 2) + '║'
+    })
     self.log(fieldsRow)
-    self.log(headingBottom)
+    //self.log(buildHorizontalBorder('├','┼','┤','─'))
+    self.log(buildHorizontalBorder('╚','╩','╝','═'))
+}
+
+function buildHorizontalBorder(left, mid, right, border){
+
+    var row = left
+    columns.map((c, i) => {
+        row += ''.padEnd(c.width + 2, border)
+        if(i < columns.length - 1){
+            row += mid
+        } else {
+            row += right
+        }
+    })
+    return row
 }
 
 function printItem(item) {
-    self.log('  ' + item.title)
+
+    // TODO Print album title in multiple rows, if necessary, so we don't have to
+    // cut it.
+
+    // TODO Special handling of 'listened' field
+
+    var row = '|'
+    columns.map((c, i) => {
+        if(c.field){
+            row += (' ' + (item[c.field] || '')
+                .substring(0, c.width) + ' ')
+                .padEnd(c.width + 2) + '|'
+        } else if(c.notesField){
+            row += (' ' + (item.notes[c.notesField] || '')
+                .substring(0, c.width) + ' ')
+                .padEnd(c.width + 2) + '|'
+        }
+    })
+    self.log(row)
 }

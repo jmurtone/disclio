@@ -18,6 +18,8 @@ exports.stats = function (year, releases) {
 
 listens = function (year, releases) {
 
+    // TODO: Shows count of all listens, not only selected year. Please fix.
+    self.log('BUG: Shows count of all listens, not only selected year. Please fix.')
     listenedItems = releases
         .filter(r => r.notes.listened && r.notes.listened.includes(year))
         //.filter(r => r.year == year)
