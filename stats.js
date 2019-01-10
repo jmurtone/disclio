@@ -22,9 +22,8 @@ listens = function (year, releases) {
     self.log('BUG: Shows count of all listens, not only selected year. Please fix.')
     listenedItems = releases
         .filter(r => r.notes.listened && r.notes.listened.includes(year))
-        //.filter(r => r.year == year)
         .map(r => {
-            listened = parseListened(r.notes.listened)
+            listened = parseListened(r.notes.listened, year)
             return {
                 'partial': listened.partial,
                 'whole': listened.whole,
@@ -58,38 +57,103 @@ listens = function (year, releases) {
 
 }
 
-parseListened = function(item) {
-    //console.log('Parse: ' + JSON.stringify(item))
+parseListenedOrig = function(item, year) {
+    console.log('\nParse: ' + JSON.stringify(item))
 
     // Read chars until length or '(' or ','
     buffer = ''
     whole = []
-    partial = 0
-    lastRead = ''
+    partial = []
 
     for(var i=0; i<item.length; i++){
+        
+        var char = item[i]
         buffer += item[i]
-        lastRead += item[i]
-        if(item[i] == ',' || i == item.length-1){
-            whole.push(lastRead)
-            lastRead = ''
-        }
-        if(item[i] == '('){
-            while(item[i++] != ')'){}
+        if(char == ','){
+            // TDOO Check year before pushing to array
+            whole.push(buffer.substring(0, buffer.length-1).trim())
+            buffer = ''
+
+            console.log('Whole: '+ whole[whole.length-1])
+
+        } else if(i == item.length-1) {
+            // TDOO Check year before pushing to array
+            whole.push(buffer.trim())
+            buffer = ''
+
+            console.log('Whole: '+ whole[whole.length-1])
+
+        } else if(item[i] == '('){
+            // TDOO Check year before pushing to array
+            partial.push(buffer.substring(0, buffer.length-1).trim())
+            buffer = ''
+
+            console.log('Partial: ' + partial[partial.length-1])
+
+            while(item[i++] != ')'){
+            }
             if(i < item.length && item[i] == ','){
                 i++
             }
-
-            // TODO Parse plays of each side separately 
-            partial++
         }
     }
     return {
-        'partial': partial,
+        'partial': partial.length,
         'whole': whole.length,
     }
 
 }
+
+// TODO Refactor so that we have yearly stats of both whole and partial listens  
+parseListened = function(item, year) {
+
+    console.log('\nParse: ' + JSON.stringify(item))
+
+    buffer = ''
+    whole = []
+    partial = []
+
+    // Read chars until length or '(' or ','
+    for(var i=0; i<item.length; i++){
+        
+        var char = item[i]
+        //buffer += item[i]
+
+        // At the end of string
+        if(i == item.length-1){
+            // TDOO Check year before pushing to array
+            console.log('Whole: '+ buffer + char)
+            whole.push(buffer + char)
+        }
+
+        if(item[i] == ','){
+            // TDOO Check year before pushing to array
+            console.log('Whole: '+ buffer.trim())
+            whole.push(buffer.trim())
+            buffer = ''
+
+        } else if(item[i] == '('){
+            // TDOO Check year before pushing to array
+            partial.push(buffer.substring(0, buffer.length-1).trim())
+            buffer = ''
+
+            console.log('Partial: ' + partial[partial.length-1])
+
+            while(item[i++] != ')'){
+            }
+            if(i < item.length && item[i] == ','){
+                i++
+            }
+        }
+    }
+    return {
+        'partial': partial.length,
+        'whole': whole.length,
+    }
+
+}
+
+
 
 exports.testParseListened = function(item) {
 
@@ -111,7 +175,7 @@ exports.testParseListened = function(item) {
         '2018-11-12 (A, B), 2018-11-13 (B, C), 2018-11-14'  // 1 whole, 2 partial
     ]
 
-    examples.forEach(example => parseListened(example))
+    examples.forEach(example => parseListened(example, '2008'))
 
 }
 
