@@ -65,3 +65,77 @@ exports.parseNotes = function(title, notes) {
   return parsed
 
 }
+
+exports.parseListened = function(item, year) {
+
+  // Read chars until length or '(' or ','
+  buffer = ''
+  whole = []
+  partial = []
+
+  for(var i=0; i<item.length; i++){
+      
+      var char = item[i]
+      var date = null
+      buffer += item[i]
+      if(char == ','){
+          whole.push(parseDate(buffer.substring(0, buffer.length-1).trim()))
+          buffer = ''
+      } else if(i == item.length-1) {
+          whole.push(parseDate(buffer.trim()))
+          buffer = ''
+      } else if(item[i] == '('){
+          partial.push(parseDate(buffer.substring(0, buffer.length-1).trim()))
+          buffer = ''
+          while(item[i++] != ')'){
+          }
+          if(i < item.length && item[i] == ','){
+              i++
+          }
+      }
+  }
+  var listened = {
+    partial: parseAnnualListens(partial),
+    whole: parseAnnualListens(whole)
+  }
+  console.log('Parsed: ' + JSON.stringify(listened))
+  return listened
+
+}
+
+function parseAnnualListens(listens){
+
+  var annualListens = {}
+  listens.forEach(l => {
+    var year = l.getFullYear() //dateFormat(l, 'yyyy')
+    if(!annualListens[year]){
+      annualListens[year] = []
+    }
+    annualListens[year].push(dateFormat(l, 'yyyy-mm-dd'))
+  })
+  return annualListens
+}
+
+exports.testParseListened = function(item) {
+
+  // Listened are in forms of whole or partial listens, for example:
+  // 2018-11-12
+  // 2018-11-12, 2018-11-13
+  // 2018-11-12 (A, B)
+  // 2018-11-12 (A, B), 2018-11-13
+  // 2018-11-12 (A, B), 2018-11-13 (B, C)
+  // 2018-11-12 (A, B), 2018-11-13 (B, C), 2018-11-14
+
+  examples = [
+      '2018-11-12',               // 1 whole
+      '2018-11-12, 2018-11-13',   // 2 whole
+      '2018-11-12 (A, B)',        // 1 partial
+      '2018-11-12, 2018-11-13 (A, B)',    // 1 whole, 1 partial
+      '2018-11-12 (A, B), 2018-11-13',    // 1 whole, 1 partial
+      '2018-11-12 (A, B), 2018-11-13 (B, C)', // 2 partial
+      '2018-11-12 (A, B), 2018-11-13 (B, C), 2018-11-14'  // 1 whole, 2 partial
+  ]
+
+  examples.forEach(example => exports.parseListened(example, '2008'))
+
+}

@@ -54,7 +54,7 @@ vorpal
   .command('asd')
   .action(function (args, callback) {
     this.log('Test')
-    stats.testParseListened()
+    parse.testParseListened()
   })
 
 vorpal
