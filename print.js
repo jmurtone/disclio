@@ -114,7 +114,11 @@ function printItem(item) {
                 .padEnd(c.width + 2) + '|'
 
         } else if (c.notesField) {
-            row += (' ' + (item.notes[c.notesField] || '')
+            var fieldValue = ''
+            if(item.notes){
+                fieldValue = item.notes[c.notesField] || ''
+            }
+            row += (' ' + fieldValue
                 .substring(0, c.width) + ' ')
                 .padEnd(c.width + 2) + '|'
         }
