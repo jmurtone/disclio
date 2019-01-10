@@ -36,7 +36,8 @@ exports.downloadFolder = function(dis, user, folder, dir, folders) {
             'name': r.basic_information.artists[0].name
           },
           'title': r.basic_information.title,
-          'notes': r.notes ? parse.parseNotes(r.basic_information.title, r.notes) : null
+          'notes': r.notes ? parse.parseNotes(r.basic_information.title, r.notes) : null,
+          'listened': r.notes ? parse.parseListened(r.notes) : null
         })))
         if(results.length == pageCount){
           // flatten releases

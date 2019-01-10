@@ -11,13 +11,13 @@ const SUGGESTED_PRICE = 'Sugg.'
 const STORE = 'Store'
 const OTHER = 'Other'
 const columns = [
-    { name: TITLE, width: 30, field: 'title'},
-    { name: LISTENED, width: 16, notesField: 'listened'},
-    { name: PURCHASED, width: 10, notesField: 'date'},
-    { name: PRICE, width: 7, notesField: 'price'},
-    { name: SUGGESTED_PRICE, width: 5, notesField: 'suggestedPrice'},
-    { name: STORE, width: 10, notesField: 'store'},
-    { name: OTHER, width: 20, notesField: ['notes']}
+    { name: TITLE, width: 30, field: 'title' },
+    { name: LISTENED, width: 16, field: 'listened' },
+    { name: PURCHASED, width: 10, notesField: 'date' },
+    { name: PRICE, width: 7, notesField: 'price' },
+    { name: SUGGESTED_PRICE, width: 5, notesField: 'suggestedPrice' },
+    { name: STORE, width: 10, notesField: 'store' },
+    { name: OTHER, width: 20, notesField: ['notes'] }
 ]
 
 function getRequiredConsoleWidth() {
@@ -45,18 +45,18 @@ function printItems(items) {
 }
 
 function printItemsDetailed(items) {
-    if(requiredConsoleWidth > process.stdout.columns){
+    if (requiredConsoleWidth > process.stdout.columns) {
         self.log(`Window width must be at least ${requiredConsoleWidth} to print detailed info.`)
         items.map(i => self.log(i.title))
     } else {
         printHeadings()
-        items.map((item, i)  => {
+        items.map((item, i) => {
             printItem(item)
-            if(i< items.length - 1){
-                self.log(buildHorizontalBorder('├','┼','┤','─'))
+            if (i < items.length - 1) {
+                self.log(buildHorizontalBorder('├', '┼', '┤', '─'))
             }
         })
-        self.log(buildHorizontalBorder('└','┴','┘','─'))
+        self.log(buildHorizontalBorder('└', '┴', '┘', '─'))
     }
 }
 
@@ -67,22 +67,22 @@ function printHeadings() {
 
     //self.log('Row length: ' + headingTop.length)
     //self.log(buildHorizontalBorder('┌','┬','┐','─'))
-    self.log(buildHorizontalBorder('╔','╦','╗','═'))
+    self.log(buildHorizontalBorder('╔', '╦', '╗', '═'))
     var fieldsRow = '║'
     columns.map((c, i) => {
         fieldsRow += (' ' + c.name + ' ').padEnd(c.width + 2) + '║'
     })
     self.log(fieldsRow)
     //self.log(buildHorizontalBorder('├','┼','┤','─'))
-    self.log(buildHorizontalBorder('╚','╩','╝','═'))
+    self.log(buildHorizontalBorder('╚', '╩', '╝', '═'))
 }
 
-function buildHorizontalBorder(left, mid, right, border){
+function buildHorizontalBorder(left, mid, right, border) {
 
     var row = left
     columns.map((c, i) => {
         row += ''.padEnd(c.width + 2, border)
-        if(i < columns.length - 1){
+        if (i < columns.length - 1) {
             row += mid
         } else {
             row += right
@@ -100,15 +100,53 @@ function printItem(item) {
 
     var row = '|'
     columns.map((c, i) => {
-        if(c.field){
-            row += (' ' + (item[c.field] || '')
+        if (c.field) {
+
+            // TODO Better handling of special fields
+            var fieldValue = ''
+            if (c.name == LISTENED) {
+                fieldValue = formatListened(item[c.field])
+            } else {
+                fieldValue = item[c.field]
+            }
+            row += (' ' + (fieldValue || '')
                 .substring(0, c.width) + ' ')
                 .padEnd(c.width + 2) + '|'
-        } else if(c.notesField){
-            row += (' ' + (item.notes[c.notesField] || '')
+
+        } else if (c.notesField) {
+            row += (' ' + (item.notes[c.notesField] || '')
                 .substring(0, c.width) + ' ')
                 .padEnd(c.width + 2) + '|'
         }
     })
     self.log(row)
+}
+
+function formatListened(listened) {
+
+    if(!listened)
+        return null
+
+    var latestListen = null
+    var count = 0
+
+    Object.keys(listened.partial).forEach(year => {
+        var length = listened.partial[year].length
+        count += length
+        latestListen = listened.partial[year][length - 1]
+    })
+
+    Object.keys(listened.whole).forEach(year => {
+        var length = listened.whole[year].length
+        count += length
+        latestListen = listened.whole[year][length - 1]
+    })
+
+    if (count == 0) {
+        return ''
+    }
+    if (count == 1){
+        return latestListen
+    }
+    return latestListen + ` (+ ${count - 1})`
 }

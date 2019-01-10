@@ -55,7 +55,6 @@ exports.parseNotes = function(title, notes) {
         }
         return
       case 5:
-        // TODO Normalize to ISO date
         parsed.listened = note.value
         return
       default:
@@ -66,8 +65,17 @@ exports.parseNotes = function(title, notes) {
 
 }
 
-exports.parseListened = function(item, year) {
+exports.parseListened = function(notes) {
 
+  var listened = notes.find(n => n.field_id == 5)
+  if(listened){
+    return parseListened(listened.value)
+  }
+  return null
+
+}
+
+parseListened = function(item) {
   // Read chars until length or '(' or ','
   buffer = ''
   whole = []
@@ -94,11 +102,13 @@ exports.parseListened = function(item, year) {
           }
       }
   }
+
+  // TODO Convert to ES6 style maps
   var listened = {
     partial: parseAnnualListens(partial),
     whole: parseAnnualListens(whole)
   }
-  console.log('Parsed: ' + JSON.stringify(listened))
+  //console.log('Parsed: ' + JSON.stringify(listened))
   return listened
 
 }
@@ -136,6 +146,6 @@ exports.testParseListened = function(item) {
       '2018-11-12 (A, B), 2018-11-13 (B, C), 2018-11-14'  // 1 whole, 2 partial
   ]
 
-  examples.forEach(example => exports.parseListened(example, '2008'))
+  examples.forEach(example => exports.parseListened(example))
 
 }
