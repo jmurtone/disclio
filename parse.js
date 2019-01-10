@@ -1,6 +1,12 @@
 const dateFormat = require('dateformat')
 const parseDate = require('parse-date')
 
+// Note: These may change in discogs, don't know if its unlikely or not.
+const MEDIA_CONDITION_FIELD_ID = 1
+const SLEEVE_CONDITION_FIELD_ID = 2
+const NOTES_FIELD_ID = 3
+const LISTENED_FIELD_ID = 5
+
 exports.parseNotes = function(title, notes) {
 
   var debugTitles = [
@@ -16,15 +22,14 @@ exports.parseNotes = function(title, notes) {
 
   parsed = {}
   notes.forEach(note => {
-    // Note: Field ids are subject to change
     switch(note.field_id){
-      case 1: 
+      case MEDIA_CONDITION_FIELD_ID: 
         parsed.mediaCondition = note.value
         return
-      case 2:
+      case SLEEVE_CONDITION_FIELD_ID:
         parsed.sleeveCondition = note.value
         return
-      case 3:
+      case NOTES_FIELD_ID:
         try {
           note.value.split(',').forEach(token => {
             field = token.split(':')
@@ -54,7 +59,7 @@ exports.parseNotes = function(title, notes) {
             self.log("Invalid notes field in title " + title + ": " + note.value)
         }
         return
-      case 5:
+      case LISTENED_FIELD_ID:
         parsed.listened = note.value
         return
       default:
