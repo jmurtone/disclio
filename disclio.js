@@ -51,9 +51,10 @@ try {
 }
 
 vorpal
-  .command('asd')
+  .command('asd', 'Random test command')
   .action(function (args, callback) {
-    this.log('Test')
+    self = this
+    self.log('Test')
     parse.testParseListened()
   })
 

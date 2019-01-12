@@ -70,14 +70,8 @@ exports.parseNotes = function(title, notes) {
 
 }
 
-exports.parseListened = function(notes) {
-
-  var listened = notes.find(n => n.field_id == 5)
-  if(listened){
-    return parseListened(listened.value)
-  }
-  return null
-
+exports.parseListened = function(listened) {
+    return parseListened(listened)
 }
 
 parseListened = function(item) {
@@ -151,6 +145,9 @@ exports.testParseListened = function(item) {
       '2018-11-12 (A, B), 2018-11-13 (B, C), 2018-11-14'  // 1 whole, 2 partial
   ]
 
-  examples.forEach(example => exports.parseListened(example))
+  examples.forEach(example => {
+    var listened = exports.parseListened(example)
+    self.log(`${example}\n   => ` + JSON.stringify(listened)) 
+  })
 
 }

@@ -19,10 +19,8 @@ exports.stats = function (year, releases) {
 
 listens = function (year, releases) {
 
-    // TODO: Shows count of all listens, not only selected year. Please fix.
-    self.log('BUG: Shows count of all listens, not only selected year. Please fix.')
     listenedItems = releases
-        .filter(r => r.notes.listened && r.notes.listened.includes(year))
+        .filter(r => r.notes && r.notes.listened && r.notes.listened.includes(year))
         .map(r => {
             listened = parse.parseListened(r.notes.listened, year)
 
@@ -65,7 +63,8 @@ purchases = function (year, releases) {
     var purchasesAmount = 0
     releases.forEach(item => {
 
-        if (item.notes.date && parseDate(item.notes.date).getFullYear() == parseInt(year)) {
+        if (item.notes && item.notes.date &&
+            parseDate(item.notes.date).getFullYear() == parseInt(year)) {
             purchases.push(item)
             if (item.notes.price) {
                 price = item.notes.price.replace('~', '').split(' ')
