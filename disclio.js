@@ -65,6 +65,35 @@ vorpal
     callback()
   })
 
+const purchasesSortOptions = ['date', 'artist', 'store', 'price']
+const purchasesFilterOptions = ['artist', 'store', 'minPrice', 'maxPrice']
+const purchasesUsageText = 'Lists purchases for given year.'
+
+function getArtists(){
+  // TODO Get artists
+  return ['amorphis','hellacopters','wigwam']
+}
+
+function getStores(){
+  // TODO Get stores
+  return ['x','epes','swamp']
+}
+
+// TODO: Why we need separate 'purchases command'? Wouldn't general 'list' command do? 
+vorpal
+  .command('purchases [year]', purchasesUsageText)
+  .option('-s --sort <field>', `Sort by field. Allowed values are ${purchasesSortOptions}.`,
+    purchasesSortOptions)
+  .option('--artist <name>', 'Filter by artist', getArtists)
+  .option('--store <name>', 'Filter by store', getStores)
+  .option('--min <value>', 'Minimum price')
+  .option('--max <value>', 'Maximum price')
+  .action(function (args, callback){
+    this.log('TODO: Purchases: ' + JSON.stringify(args))
+    callback()
+  })
+
+// TODO Refactor: Move action body elsewhere
 vorpal
   .command('cd <name...>', 'Go to folder or artist')
   .autocomplete({
@@ -139,6 +168,7 @@ vorpal
     callback()
   })
 
+// TODO Refactor: Move action body elsewhere
 vorpal
   .command('list [filter]', 'List items (at root level lists folders). ' +
     'Optional filter for refining lists by given filter (supports wildcards)')
@@ -187,6 +217,7 @@ vorpal
     callback()
   })
 
+// TODO Refactor: Move action body elsewhere
 function assignArtistsToFolder(folder) {
 
   artists = []
@@ -201,6 +232,7 @@ function assignArtistsToFolder(folder) {
   folder.artists = artists
 }
 
+// TODO Refactor: Move action body elsewhere
 function printColumns(sortedArtists) {
 
   const MAX_ARTIST_LENGTH = 29
@@ -219,6 +251,7 @@ function printColumns(sortedArtists) {
   }
 }
 
+// TODO Refactor: Move action body elsewhere
 function matchRule(str, rule) {
   return new RegExp("^" + rule.split("*").join(".*") + "$").test(str);
 }
@@ -229,6 +262,7 @@ process.stdout.on('resize', () => {
   console.log(`${process.stdout.columns}x${process.stdout.rows}`);
 });*/
 
+// TODO Refactor: Move action body elsewhere -> stats.js
 vorpal
   .command('stats [year]', 'Show statistics for a year')
   .action(function (args, callback) {
@@ -255,6 +289,7 @@ vorpal
 
   })
 
+// TODO Refactor: Move action body elsewhere -> download.js
 vorpal
   .command('download', 'Download collection')
   .action(function (args, callback) {
@@ -280,6 +315,7 @@ vorpal
     callback()
   })
 
+// TODO Refactor: Move action body elsewhere
 vorpal
   .command('user [username]', 'Set user for requests or print user info')
   .action(function (args, callback) {
