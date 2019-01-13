@@ -66,7 +66,6 @@ vorpal
   })
 
 const purchasesSortOptions = ['date', 'artist', 'store', 'price']
-const purchasesFilterOptions = ['artist', 'store', 'minPrice', 'maxPrice']
 const purchasesUsageText = 'Lists purchases for given year.'
 
 function getArtists(){
@@ -89,7 +88,10 @@ vorpal
   .option('--min <value>', 'Minimum price')
   .option('--max <value>', 'Maximum price')
   .action(function (args, callback){
-    this.log('TODO: Purchases: ' + JSON.stringify(args))
+    self = this
+    self.log('TODO: Purchases: ' + JSON.stringify(args))
+    var purchases = stats.purchases(getReleasesForCurrentFolder(), args.year, args.options)
+    printer.printPurchases(purchases)
     callback()
   })
 
@@ -254,6 +256,28 @@ function printColumns(sortedArtists) {
 // TODO Refactor: Move action body elsewhere
 function matchRule(str, rule) {
   return new RegExp("^" + rule.split("*").join(".*") + "$").test(str);
+}
+
+function getReleasesForCurrentFolder(){
+
+  var folder = currentFolder
+
+  if (folder == rootFolder) {
+    folder = folders.find(f => f.name == 'All')
+    if (!folder) {
+      this.log('Error: No folder \'All\'')
+    } else if (!folder.releases) {
+      folder.releases = JSON.parse(fs.readFileSync(COLLECTION_DIR + '/All.json'))
+    }
+  }
+
+  if (folder && folder.releases) {
+    return folder.releases
+  }
+
+  this.log('Error: No releases in folder ' + folder.name)
+  return null
+
 }
 
 /* TODO Implement resizing of lists

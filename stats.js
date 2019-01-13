@@ -11,6 +11,11 @@ const currencyRates = {
     'FIM': 0.17
 }
 
+exports.purchases = function(releases, year, options){
+    console.log('Purchases: ' + year, ', ' + JSON.stringify(options))
+    return purchases(year, releases)
+}
+
 // TODO Filter stats by artist, release date, store etc...
 exports.stats = function (year, releases) {
     purchases(year, releases)
@@ -81,9 +86,12 @@ purchases = function (year, releases) {
     self.log('Purchased ' + purchases.length + ' items at ' + year)
     self.log('Total sum ' + parseFloat(purchasesAmount).toFixed(2) + ' €')
 
-    // TODO Show each item only if specified
+    /* TODO Show each item only if specified
     purchases = _.sortBy(purchases, function(item){return item.artist.name})
     purchases.forEach(item =>
         self.log(item.artist.name + ': ' + item.title + ', price: ' + item.notes.price)
-    )
+    )*/
+
+    return purchases
+
 }
