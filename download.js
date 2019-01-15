@@ -26,7 +26,9 @@ exports.downloadFolder = function(dis, user, folder, dir, folders) {
   for(var i = 1; i <= pageCount; i++){
     //self.log('Downloading page ' + i)
     dis.user().collection().getReleases(user, folder.id, {'page': i, 'per_page': PAGE_SIZE}, function(err, data){
-        results.push(data.releases.map(r => ({
+        results.push(data.releases.map(r => {
+          var notes = r.notes ? parse.parseNotes(r.basic_information.title, r.notes) : null
+          return {
           'id': r.basic_information.id,
           'year': r.basic_information.year,
           'master_id': r.basic_information.master_id,
@@ -36,9 +38,9 @@ exports.downloadFolder = function(dis, user, folder, dir, folders) {
             'name': r.basic_information.artists[0].name
           },
           'title': r.basic_information.title,
-          'notes': r.notes ? parse.parseNotes(r.basic_information.title, r.notes) : null,
-          'listened': r.notes ? parse.parseListened(r.notes) : null
-        })))
+          'notes': notes,
+          'listened': notes && notes.listened ? parse.parseListened(notes.listened) : null
+        }}))
         if(results.length == pageCount){
           // flatten releases
           var releases = [].concat.apply([], results)
