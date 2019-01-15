@@ -80,18 +80,22 @@ function getStores(){
 
 // TODO: Why we need separate 'purchases command'? Wouldn't general 'list' command do? 
 vorpal
-  .command('purchases [year]', purchasesUsageText)
+  .command('purchases <year>', purchasesUsageText)
   .option('-s --sort <field>', `Sort by field. Allowed values are ${purchasesSortOptions}.`,
     purchasesSortOptions)
+  .option('--asc', 'Sort in ascending order (default)')
+  .option('--desc', 'Sort in descending order')
   .option('--artist <name>', 'Filter by artist', getArtists)
   .option('--store <name>', 'Filter by store', getStores)
   .option('--min <value>', 'Minimum price')
   .option('--max <value>', 'Maximum price')
   .action(function (args, callback){
     self = this
-    self.log('TODO: Purchases: ' + JSON.stringify(args))
     var purchases = stats.purchases(getReleasesForCurrentFolder(), args.year, args.options)
-    printer.printPurchases(purchases)
+    printer.printPurchases(purchases.purchases)
+    if(purchases.purchases){
+      self.log(`${purchases.purchases.length} items, total sum ${parseFloat(purchases.sum).toFixed(2)} €.`)
+    }
     callback()
   })
 

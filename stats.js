@@ -11,18 +11,44 @@ const currencyRates = {
     'FIM': 0.17
 }
 
+const sortOptions = {
+    'artist': 'artist.name',
+    'date': 'notes.date',
+    'store': 'notes.store',
+    'price': 'notes.priceValue'
+}
+
 exports.purchases = function(releases, year, options){
-    console.log('Purchases: ' + year, ', ' + JSON.stringify(options))
-    return purchases(year, releases)
+    console.log('Purchases: ' + year + ', options ' + JSON.stringify(options))
+    var purchases = getPurchases(year, releases)
+    var sorted = []
+    if(options.sort){
+        self.log('TODO Sort by ' + options.sort)
+        purchases.purchases = _.orderBy(purchases.purchases, sortOptions[options.sort])
+    }
+
+    if(options.artist){
+        purchases.purchases = _.filter(purchases.purchases,
+            i => i.artist.name.toLowerCase() == options.artist.toLowerCase())
+    } else if(options.store){
+        purchases.purchases = _.filter(purchases.purchases,
+            i => i.notes.store.toLowerCase() == options.store.toLowerCase())
+    } else if(options.min){
+        // TODO
+    } else if(options.max){
+        // TODO
+    }
+
+    return purchases
 }
 
 // TODO Filter stats by artist, release date, store etc...
 exports.stats = function (year, releases) {
-    purchases(year, releases)
-    listens(year, releases)
+    getPurchases(year, releases)
+    getListens(year, releases)
 }
 
-listens = function (year, releases) {
+getListens = function (year, releases) {
 
     listenedItems = releases
         .filter(r => r.notes && r.notes.listened && r.notes.listened.includes(year))
@@ -62,7 +88,7 @@ listens = function (year, releases) {
 
 }
 
-purchases = function (year, releases) {
+getPurchases = function (year, releases) {
 
     var purchases = []
     var purchasesAmount = 0
@@ -78,7 +104,10 @@ purchases = function (year, releases) {
                 } else {
                     priceValue = price[0]
                 }
+                item.notes.priceValue = parseFloat(priceValue)
                 purchasesAmount += parseFloat(priceValue)
+            } else {
+                item.notes.priceValue = parseFloat(0)
             }
         }
     })
@@ -92,6 +121,9 @@ purchases = function (year, releases) {
         self.log(item.artist.name + ': ' + item.title + ', price: ' + item.notes.price)
     )*/
 
-    return purchases
+    return {
+        purchases: purchases,
+        sum: purchasesAmount
+    }
 
 }
