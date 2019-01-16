@@ -11,19 +11,19 @@ const PRICE = 'Price'
 const SUGGESTED_PRICE = 'Sugg.'
 const STORE = 'Store'
 const OTHER = 'Other'
-const itemsColumns = [
-    { name: TITLE, width: 30, field: 'title' },
-    { name: LISTENED, width: 16, field: 'listened' },
-    { name: PURCHASED, width: 10, notesField: 'date' },
-    { name: PRICE, width: 7, notesField: 'price' },
-    { name: SUGGESTED_PRICE, width: 5, notesField: 'suggestedPrice' },
-    { name: STORE, width: 10, notesField: 'store' },
-    { name: OTHER, width: 20, notesField: ['notes'] }
-]
 
-const purchasesColumns = [
-    { name: ARTIST, width: 20, artistField: 'name'}
-].concat(itemsColumns)
+const title = {name: TITLE, width: 30, field: 'title'}
+const listened = {name: LISTENED, width: 16, field: 'listened'}
+const purchased = {name: PURCHASED, width: 10, notesField: 'date'}
+const price = {name: PRICE, width: 7, notesField: 'price'}
+const suggestedPrice = {name: SUGGESTED_PRICE, width: 5, notesField: 'suggestedPrice'}
+const store = {name: STORE, width: 10, notesField: 'store'}
+const other = {name: OTHER, width: 20, notesField: ['notes']}
+const artist = {name: ARTIST, width: 20, artistField: 'name'}
+
+// TODO Add suggested price
+const itemsColumns = [title, listened, purchased, price, store, other]
+const purchasesColumns = [artist, title, purchased, price, store, other]
 
 function getRequiredConsoleWidth(columns) {
     var requiredConsoleWidth = 0
