@@ -15,7 +15,7 @@ Start app by commanding ```node disclio.js```.
 Disclio supports command completion with tabs.
 
 - Set user with ```user <username>```.
-- Download you collection with ```download```.
+- Download your collection with ```download```.
 - See your collection folders with ```ls``` or ```list```.
 - Navigate to a folder with ```cd <folder>```.
 - See artists in folder with ```ls``` or ```list``` (supports filtering by artist name, supports wildcards).
@@ -26,7 +26,7 @@ For further instructions, type ```help```.
 
 ## Statistics
 
-Disclio shows some statistics of listenings and purchases. To accomplish this, you must provide that information in custom fields.
+Disclio shows some statistics of listenings and purchases. To accomplish this, you must provide that information in ```Notes``` field and a custom ```listened``` field.
 
 <img src='discogs_notes.png' width=30%/>
 
@@ -35,8 +35,8 @@ Fields can be managed at https://www.discogs.com/settings/collection.
 <img src='discogs_custom_fields.png' width=30%/>
 
 In collection folder, you can list purchases or general stats for a given year, e.g.
-```purchases -s date 2018``` 
-```stats 2018```
+- ```purchases -s date 2018```
+- ```stats 2018```
 
 ## Clear local cache
 
