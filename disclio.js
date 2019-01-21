@@ -94,7 +94,8 @@ vorpal
     var purchases = stats.purchases(getReleasesForCurrentFolder(), args.year, args.options)
     printer.printPurchases(purchases.purchases)
     if(purchases.purchases){
-      self.log(`${purchases.purchases.length} items, total sum ${parseFloat(purchases.sum).toFixed(2)} €.`)
+      var totalSum = purchases.totalSum == purchases.sum ? '' : ' (of ' + parseFloat(purchases.totalSum).toFixed(2) + ' €)'
+      self.log(`${purchases.purchases.length} items, ${parseFloat(purchases.sum).toFixed(2)} €${totalSum}.`)
     }
     callback()
   })

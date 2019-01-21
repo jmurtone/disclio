@@ -19,14 +19,14 @@ const sortOptions = {
 }
 
 exports.purchases = function(releases, year, options){
-    console.log('Purchases: ' + year + ', options ' + JSON.stringify(options))
+    //console.log('Purchases: ' + year + ', options ' + JSON.stringify(options))
     var purchases = getPurchases(year, releases)
-    var sorted = []
     if(options.sort){
-        self.log('TODO Sort by ' + options.sort)
         purchases.purchases = _.orderBy(purchases.purchases, sortOptions[options.sort])
     }
 
+    var totalSum = purchases.sum
+    var filtered = []
     if(options.artist){
         purchases.purchases = _.filter(purchases.purchases,
             i => i.artist.name.toLowerCase() == options.artist.toLowerCase())
@@ -39,7 +39,9 @@ exports.purchases = function(releases, year, options){
         // TODO
     }
 
-    return purchases
+    // To get the sum of filtered purchases 
+    purchases = getPurchases(year, purchases.purchases)
+    return Object.assign({}, purchases, {totalSum: totalSum})
 }
 
 // TODO Filter stats by artist, release date, store etc...
@@ -111,15 +113,6 @@ getPurchases = function (year, releases) {
             }
         }
     })
-
-    self.log('Purchased ' + purchases.length + ' items at ' + year)
-    self.log('Total sum ' + parseFloat(purchasesAmount).toFixed(2) + ' €')
-
-    /* TODO Show each item only if specified
-    purchases = _.sortBy(purchases, function(item){return item.artist.name})
-    purchases.forEach(item =>
-        self.log(item.artist.name + ': ' + item.title + ', price: ' + item.notes.price)
-    )*/
 
     return {
         purchases: purchases,
