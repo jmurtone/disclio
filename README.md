@@ -12,11 +12,11 @@ Start app by commanding ```node disclio.js```. For further instructions, type ``
 
 Disclio shows some statistics of listenings and purchases. To accomplish this, you must provide that information in custom fields.
 
-![Discogs notes fields](discogs_notes.png)
+<img src='discogs_notes.png' width=30%/>
 
 Fields can be managed at https://www.discogs.com/settings/collection.
 
-NOTE: For statistics of listened and purchased items 
+<img src='discogs_custom_fields.png' width=30%/>
 
 ## TODO
 
