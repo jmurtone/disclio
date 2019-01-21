@@ -4,7 +4,9 @@ Discogs command line interface. Based on Vorpal CLI framework and Disconnect lib
 
 ## Usage
 
-Start by commanding ```node disclio.js``` and type help.
+Generate your user token in https://www.discogs.com/settings/developers.
+
+Start app by commanding ```node disclio.js```. For further instructions, type ```help```.
 
 ## TODO
 
