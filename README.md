@@ -55,6 +55,7 @@ Clear your local cache, including user and collection data: Remove ```data``` di
 - sort and filtering options in folder's artist listing
 - ```clear cache``` command
 - refactoring
+- error handling here and there
 - etc...
 
 ## License
