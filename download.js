@@ -28,6 +28,12 @@ exports.downloadFolder = function(dis, user, folder, dir, folders) {
     dis.user().collection().getReleases(user, folder.id, {'page': i, 'per_page': PAGE_SIZE}, function(err, data){
         results.push(data.releases.map(r => {
           var notes = r.notes ? parse.parseNotes(r.basic_information.title, r.notes) : null
+          var listened = null
+          try {
+            listened = notes && notes.listened ? parse.parseListened(notes.listened) : null
+          } catch(e) {
+            self.log('Error parsing listened field in item: ' + r.basic_information.title)
+          }
           return {
           'id': r.basic_information.id,
           'year': r.basic_information.year,
@@ -39,7 +45,7 @@ exports.downloadFolder = function(dis, user, folder, dir, folders) {
           },
           'title': r.basic_information.title,
           'notes': notes,
-          'listened': notes && notes.listened ? parse.parseListened(notes.listened) : null
+          'listened': listened
         }}))
         if(results.length == pageCount){
           // flatten releases
