@@ -10,7 +10,7 @@ Prerequisites:
 
 ## Usage
 
-Start app by commanding ```node disclio.js```.
+Start app from project root by commanding ```node src/disclio.js```.
 
 Disclio supports command completion with tabs.
 
@@ -28,11 +28,11 @@ For further instructions, type ```help```.
 
 Disclio shows some statistics of listenings and purchases. To accomplish this, you must provide that information in ```Notes``` field and a custom ```listened``` field.
 
-<img src='discogs_notes.png' width=30%/>
+<img src='img/discogs_notes.png' width=30%/>
 
 Fields can be managed at https://www.discogs.com/settings/collection.
 
-<img src='discogs_custom_fields.png' width=30%/>
+<img src='img/discogs_custom_fields.png' width=30%/>
 
 In collection folder, you can list purchases or general stats for a given year, e.g.
 - ```purchases -s date 2018```
