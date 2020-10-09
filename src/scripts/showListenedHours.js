@@ -36,7 +36,7 @@ if (avgTimeArgIndex > 0) {
 fs.readFile(inputFile, 'utf-8', function (err, data) {
     if (err) {
         console.log(err)
-        console.log("Prior to running this script, download you collection by running disclio as instructed in main README.md.")
+        console.log("Prior to running this script, download your collection by running disclio as instructed in main README.md.")
         console.log("Then pass that collection or folder file as argument to this script.")
         return
     }
