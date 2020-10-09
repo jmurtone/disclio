@@ -38,6 +38,21 @@ In collection folder, you can list purchases or general stats for a given year, 
 - ```purchases -s date 2018```
 - ```stats 2018```
 
+## Scripts
+
+There are some additional scripts in folder ```src/scripts```.
+
+For example, you can show listened albums since given date. You must have downloaded you collection first.
+
+Then run e.g. ```node src/scripts/showListenedHours.js -t 2018-11-18 -i data/collection/Vinyl.json -e 48 -s``` (see code for arguments). 
+
+->
+```
+Avg playing time: 48
+Show total listening time since 2018-11-18
+392 listens since 2018-11-18, estimated listening time 307h 12 min total
+```
+
 ## Clear local cache
 
 Clear your local cache, including user and collection data: Remove ```data``` directory in project root.
